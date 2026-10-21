@@ -1,26 +1,31 @@
 
 import express from "express";
+import db from "./database";
 
 const app = express();
 const PORT = 3000;
 
-// Allow Express to understand JSON request bodies.
 app.use(express.json());
 
-// Temporary sample tasks.
-// Later, we will store these in SQLite.
-const tasks = [
-  {
-    id: 1,
-    title: "Learn Node.js",
-    completed: false,
-  },
-  {
-    id: 2,
-    title: "Build my first API",
-    completed: true,
-  },
-];
+interface Task {
+  id: number;
+  title: string;
+  completed: boolean;
+}
+
+interface TaskRow {
+  id: number;
+  title: string;
+  completed: number;
+}
+
+function formatTask(row: TaskRow): Task {
+  return {
+    id: row.id,
+    title: row.title,
+    completed: row.completed === 1,
+  };
+}
 
 // Welcome route
 app.get("/", (_req, res) => {
@@ -29,44 +34,43 @@ app.get("/", (_req, res) => {
   });
 });
 
-// Get all tasks
+// Read all tasks
 app.get("/api/tasks", (_req, res) => {
-  res.json(tasks);
+  const rows = db
+    .prepare("SELECT id, title, completed FROM tasks ORDER BY id")
+    .all() as TaskRow[];
+
+  res.json(rows.map(formatTask));
 });
 
-
- // Create a new task
+// Create a task
 app.post("/api/tasks", (req, res) => {
   const { title } = req.body;
 
-  // Validate the task title.
   if (typeof title !== "string" || title.trim() === "") {
     return res.status(400).json({
       error: "Task title is required.",
     });
   }
 
-  const newTask = {
-    id: tasks.length > 0
-      ? Math.max(...tasks.map((task) => task.id)) + 1
-      : 1,
-    title: title.trim(),
-    completed: false,
-  };
+  const result = db
+    .prepare("INSERT INTO tasks (title) VALUES (?)")
+    .run(title.trim());
 
-  tasks.push(newTask);
+  const row = db
+    .prepare("SELECT id, title, completed FROM tasks WHERE id = ?")
+    .get(result.lastInsertRowid) as TaskRow;
 
-  return res.status(201).json(newTask);
+  return res.status(201).json(formatTask(row));
 });
 
+// Update a task
 app.put("/api/tasks/:id", (req, res) => {
   const id = Number(req.params.id);
   const { completed } = req.body;
 
   if (!Number.isInteger(id) || id <= 0) {
-    return res.status(400).json({
-      error: "Invalid task ID.",
-    });
+    return res.status(400).json({ error: "Invalid task ID." });
   }
 
   if (typeof completed !== "boolean") {
@@ -75,42 +79,39 @@ app.put("/api/tasks/:id", (req, res) => {
     });
   }
 
-  const task = tasks.find((task) => task.id === id);
+  const result = db
+    .prepare("UPDATE tasks SET completed = ? WHERE id = ?")
+    .run(completed ? 1 : 0, id);
 
-  if (!task) {
-    return res.status(404).json({
-      error: "Task not found.",
-    });
+  if (result.changes === 0) {
+    return res.status(404).json({ error: "Task not found." });
   }
 
-  task.completed = completed;
+  const row = db
+    .prepare("SELECT id, title, completed FROM tasks WHERE id = ?")
+    .get(id) as TaskRow;
 
-  return res.json(task);
+  return res.json(formatTask(row));
 });
 
-
+// Delete a task
 app.delete("/api/tasks/:id", (req, res) => {
   const id = Number(req.params.id);
 
   if (!Number.isInteger(id) || id <= 0) {
-    return res.status(400).json({
-      error: "Invalid task ID.",
-    });
+    return res.status(400).json({ error: "Invalid task ID." });
   }
 
-  const taskIndex = tasks.findIndex((task) => task.id === id);
+  const result = db
+    .prepare("DELETE FROM tasks WHERE id = ?")
+    .run(id);
 
-  if (taskIndex === -1) {
-    return res.status(404).json({
-      error: "Task not found.",
-    });
+  if (result.changes === 0) {
+    return res.status(404).json({ error: "Task not found." });
   }
-
-  tasks.splice(taskIndex, 1);
 
   return res.status(204).send();
 });
-
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
