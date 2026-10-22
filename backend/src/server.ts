@@ -113,6 +113,4 @@ app.delete("/api/tasks/:id", (req, res) => {
   return res.status(204).send();
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
+export default app;
