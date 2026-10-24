@@ -9,4 +9,12 @@ export default defineConfig({
     setupFiles: './src/test/setup.ts',
     restoreMocks: true,
   },
+  server: {
+  proxy: {
+    '/api': {
+      target: 'http://localhost:3000',
+      changeOrigin: true,
+    },
+  },
+},
 })

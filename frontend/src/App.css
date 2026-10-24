@@ -114,3 +114,154 @@
   background: #fef2f2;
   color: #b91c1c;
 }
+
+/* Dashboard and progress */
+.app-header {
+  margin-bottom: 28px;
+}
+
+.eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  opacity: 0.7;
+}
+
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  padding: 18px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.stat-label {
+  display: block;
+  margin-bottom: 8px;
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+.stat-value {
+  font-size: 1.8rem;
+}
+
+.progress-section {
+  grid-column: 1 / -1;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.progress-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+}
+
+.progress-track {
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e5e7eb;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: #2563eb;
+  transition: width 200ms ease;
+}
+
+/* Task section and filters */
+.task-section {
+  margin-top: 24px;
+}
+
+.task-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.task-section-heading h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.filter-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filter-button {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #374151;
+  cursor: pointer;
+}
+
+.filter-button.selected {
+  border-color: #2563eb;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
+.task-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.task-label span {
+  overflow-wrap: anywhere;
+}
+
+.task-item button:disabled,
+.task-form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.task-footer {
+  margin-top: 24px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 520px) {
+  .dashboard {
+    gap: 8px;
+  }
+
+  .stat-card {
+    padding: 12px;
+  }
+
+  .stat-value {
+    font-size: 1.4rem;
+  }
+
+  .task-section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

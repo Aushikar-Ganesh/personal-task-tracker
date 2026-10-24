@@ -10,7 +10,7 @@ interface Task {
   completed: boolean
 }
 
-const API_URL = 'http://localhost:3000/api/tasks'
+const API_URL = '/api/tasks'
 
 function response(data: unknown, ok = true, status = 200) {
   return {
@@ -131,4 +131,52 @@ describe('Personal Task Tracker', () => {
       expect.objectContaining({ method: 'DELETE' }),
     )
   })
+  
+  it('filters tasks by active and completed status', async () => {
+    const user = userEvent.setup()
+
+    fetchMock.mockResolvedValueOnce(
+      response([
+        { id: 1, title: 'Active task', completed: false },
+        { id: 2, title: 'Completed task', completed: true },
+      ]),
+    )
+
+    render(<App />)
+
+    expect(await screen.findByText('Active task')).toBeInTheDocument()
+    expect(screen.getByText('Completed task')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /^Active \(\d+\)$/i }))
+
+    expect(screen.getByText('Active task')).toBeInTheDocument()
+    expect(screen.queryByText('Completed task')).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /completed/i }))
+
+    expect(screen.getByText('Completed task')).toBeInTheDocument()
+    expect(screen.queryByText('Active task')).not.toBeInTheDocument()
+  })
+
+  it('calculates the completion progress correctly', async () => {
+    fetchMock.mockResolvedValueOnce(
+      response([
+        { id: 1, title: 'Task one', completed: true },
+        { id: 2, title: 'Task two', completed: false },
+        { id: 3, title: 'Task three', completed: true },
+        { id: 4, title: 'Task four', completed: false },
+      ]),
+    )
+
+    render(<App />)
+
+    expect(await screen.findByText('Task one')).toBeInTheDocument()
+
+    expect(screen.getByText('50%')).toBeInTheDocument()
+    expect(screen.getByRole('progressbar')).toHaveAttribute(
+      'aria-valuenow',
+      '50',
+    )
+  })
+
 })
