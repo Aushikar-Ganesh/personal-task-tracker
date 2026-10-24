@@ -1,9 +1,12 @@
-
+import cors from "cors";
 import express from "express";
 import db from "./database";
 
 const app = express();
-const PORT = 3000;
+
+app.use(cors({
+  origin: "http://localhost:5173",
+}));
 
 app.use(express.json());
 
@@ -113,7 +116,7 @@ app.delete("/api/tasks/:id", (req, res) => {
   return res.status(204).send();
 });
 
-  app.use(
+app.use(
   (
     err: unknown,
     _req: express.Request,
