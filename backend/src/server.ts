@@ -113,4 +113,34 @@ app.delete("/api/tasks/:id", (req, res) => {
   return res.status(204).send();
 });
 
+  app.use(
+  (
+    err: unknown,
+    _req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    if (res.headersSent) {
+      return next(err);
+    }
+
+    if (
+      typeof err === "object" &&
+      err !== null &&
+      "type" in err &&
+      err.type === "entity.parse.failed"
+    ) {
+      return res.status(400).json({
+        error: "Invalid JSON request body.",
+      });
+    }
+
+    console.error("Unexpected API error:", err);
+
+    return res.status(500).json({
+      error: "Internal server error.",
+    });
+  },
+);
+
 export default app;

@@ -116,4 +116,17 @@ describe("Personal Task Tracker API", () => {
 
     expect(response.status).toBe(400);
   });
+
+  it("rejects malformed JSON with a consistent error response", async () => {
+    const response = await request(app)
+      .post("/api/tasks")
+      .set("Content-Type", "application/json")
+      .send('{"title":');
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({
+      error: "Invalid JSON request body.",
+    });
+  });
+
 });
