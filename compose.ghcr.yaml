@@ -1,0 +1,23 @@
+
+services:
+  backend:
+    image: ghcr.io/aushikar-ganesh/personal-task-tracker-backend:latest
+    environment:
+      NODE_ENV: production
+      DATABASE_PATH: /data/tasks.db
+    volumes:
+      - ghcr-task-data:/data
+    ports:
+      - "3001:3000"
+    restart: unless-stopped
+
+  frontend:
+    image: ghcr.io/aushikar-ganesh/personal-task-tracker-frontend:latest
+    ports:
+      - "8081:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  ghcr-task-data:
